@@ -1,5 +1,14 @@
 #parser di file .sfs 
 
+#funzione che stampa tutte le sfs tra due posizioni
+def inTheMeaddle(lista, a, b):
+    ris = []
+    allPosition = get(lista, POSITION)
+    for cont in range(0, len(lista)):
+        if int(allPosition[cont]) >= a and int(allPosition[cont]) <= b:
+            ris.append(lista[cont])
+    return ris
+
 def getFromSFS(lista, sfs):
     allSFS = get(lista, SFS)
     for cont in range(0, len(allSFS)):
@@ -10,7 +19,8 @@ def menu():
     print("2. Stampa tutte le posizioni")
     print("3. Stampa tutte le lunghezze")
     print("4. Stampa posizione e lunghezza di una specifica sfs")
-    print("5. Esci")
+    print("5. Stampa SFS fra due posizioni")
+    print("6. Esci")
     scelta = int(input("Inserisci la scelta "))
     return scelta
 def get(lista, x):
@@ -18,6 +28,10 @@ def get(lista, x):
     for l in lista:
         ris.append(l[x])
     return ris
+ 
+def printList(lista):
+    for l in lista:
+        print(l)
 
 #rimozione dell'asterisco 
 def removeAst(lista):
@@ -58,22 +72,19 @@ scelta = menu()
 #personalmente userei uno switch ma è presente solo
 #nella versione 3.10 di python e non so se si può usare
 #quindi ora inserisci un semplice if
-while(scelta != 5):
+while(scelta != 6):
     if scelta == 1:
         #stampo tutte le sfs
         sfs = get(lis, SFS)
-        for s in sfs:
-            print(s)
+        printList(sfs)
     if scelta == 2:
         #stampo tutte le posizioni
         sfs = get(lis, POSITION)
-        for s in sfs:
-            print(s)
+        printList(sfs)
     if scelta == 3:
         #stampo tutte le lunghezze
         sfs = get(lis, LENGTH)
-        for s in sfs:
-            print(s)
+        printList(sfs)
     if scelta == 4:
         #stampo posizione e lunghezza da una specifica sfs
         sfsUtente = input("Inserisci la sfs di cui vuoi posizione e lunghezza: ")
@@ -84,13 +95,12 @@ while(scelta != 5):
         posizione, lunghezza = getFromSFS(lis, sfsUtente)
         print("la posizione della sfs inserita è: " + posizione)
         print("La lunghezza della sfs inserita è: " + lunghezza)
+    if scelta == 5:
+        #inserimento del range di posizione
+        a = int(input("Inserisci la posizione minima compresa: "))
+        b = int(input("Inserisci la posizione massima compresa: "))
+
+        sfs = inTheMeaddle(lis, a, b)
+        printList(sfs)
 
     scelta = menu()
-
-
-
-
-
-
-
-#print(file.read())
