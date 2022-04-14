@@ -6,7 +6,11 @@
 - creare una stringa unica per read con ovearlap
 - funzione che verifichi la similarita
 '''
-
+#dichiarazione costanti
+ID = 0
+SFS = 1
+POSITION = 2
+LENGTH = 3
 
 #funzione che stampa tutte le sfs tra due posizioni
 def inTheMeaddle(lista, a, b):
@@ -72,7 +76,25 @@ def sostitutionAst(lista):
         else:
             read[0] = idRead
     return lista
+def mergeRead(lista):
+    
+    for read in lista:
+        sfs = [read[0][POSITION], read[0][LENGTH]]
+        for cont in range(1, len(read)):
+            if int(read[cont][POSITION]) + int(read[cont][LENGTH]) > int(sfs[0]):
+                #sfs = []
+                print("entro")
+                #sfs.append(read[cont][POSITION])
+                #sfs.append(int(read[cont+1][POSITION])+int(read[cont+1][LENGTH])-int(read[cont][POSITION]))
+                posizione = int(sfs[0])
+                sfs[0] = read[cont][POSITION]
+                sfs[1] = posizione + int(sfs[1]) - int(read[cont][POSITION])
+    print(sfs)
+            
+        
+            
 
+        
 def formatting(lista):
     app = []
     ris = []
@@ -83,11 +105,7 @@ def formatting(lista):
     ris = sostitutionAst(ris)
     return ris   
  
-#dichiarazione costanti
-ID = 0
-SFS = 1
-POSITION = 2
-LENGTH = 3
+
 
 
 lista = []
@@ -146,8 +164,12 @@ while(scelta != 8):
         sfs = inTheMeaddle(lis, a, b)
         printList(sfs)
     if scelta == 7:
+        #lista di liste in cui ho ogni posizione una read contentente tutte le sequence
         read = getRead(lis)
         
-        printList(read[0])
+        #un lista contente tutte le read complete
+        read = mergeRead(read[:1])
+        
+        #printList(read)
 
     scelta = menu()
