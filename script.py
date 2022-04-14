@@ -1,4 +1,6 @@
 #parser di file .sfs 
+#TO-DO rinominare in modo più sensato le variabili
+#TO-DO funzione che ritorni le sfs con medesima lunghezza
 
 #funzione che stampa tutte le sfs tra due posizioni
 def inTheMeaddle(lista, a, b):
@@ -9,11 +11,13 @@ def inTheMeaddle(lista, a, b):
             ris.append(lista[cont])
     return ris
 
+#funzione che stampa lunghezza e posizione data una specifica SFS
 def getFromSFS(lista, sfs):
     allSFS = get(lista, SFS)
     for cont in range(0, len(allSFS)):
         if allSFS[cont] == sfs:
             return lista[cont][1], lista[cont][2]
+
 def menu():
     print("1. Stampa tutte le SFS")
     print("2. Stampa tutte le posizioni")
@@ -23,12 +27,19 @@ def menu():
     print("6. Esci")
     scelta = int(input("Inserisci la scelta "))
     return scelta
+
+#funzione che permette di ritornare cio che si vuole
+#sfs, posizione o lunghezza
+#fare una funzione per ognuna di essa creava ripetizione inutile di codice
 def get(lista, x):
     ris = []
     for l in lista:
         ris.append(l[x])
     return ris
- 
+
+#ogni funzione restituisce una lista
+#per far si che sia una stampa più compresibile 
+#faccio un ciclo, per non ripetere codice ho creato questa funzione
 def printList(lista):
     for l in lista:
         print(l)
@@ -39,6 +50,7 @@ def removeAst(lista):
         if len(lista[cont]) != 4:
             lista[cont] = lista[cont][1:]
     return lista
+
 def formatting(lista):
     app = []
     ris = []
@@ -47,7 +59,8 @@ def formatting(lista):
         ris.append(app)
         #print(app)
     ris = removeAst(ris)
-    return ris    
+    return ris   
+ 
 #dichiarazione costanti
 SFS = 0
 POSITION = 1
@@ -59,13 +72,13 @@ file = open("solution_batch_0.sfs", 'r')
 for single in file:
     lista.append(single)
 
-
 #rimuovo la stringa iniziale 
 lista[0] = lista[0][36:]
 
-
 #creo una lista(ogni riga) di lista(ogni campo della riga) 
-lis = formatting(lista[:10])
+#lis = formatting(lista[:10]) utile per debug
+#invece di avere tutte le righe, così è più capibile 
+lis = formatting(lista)
 
 scelta = menu()
 
