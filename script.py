@@ -35,7 +35,7 @@ def menu():
     print("4. Stampa tutte gli id")
     print("5. Stampa posizione e lunghezza di una specifica sfs")
     print("6. Stampa SFS fra due posizioni")
-    print("7. Stampa le read raggruppate")
+    print("7. Stampa le read unite e pulite")
     scelta = int(input("Inserisci la scelta "))
     return scelta
 
@@ -77,17 +77,15 @@ def sostitutionAst(lista):
             read[0] = idRead
     return lista
 def mergeRead(lista):
-    
+    ris = []
     for read in lista:
         sfs = [read[0][POSITION], read[0][LENGTH], read[0][SFS]]
+        
         stringhe = ""
+
         for cont in range(1, len(read)):
             #qui entro se trovo due stringhe che sono in overleap
             if int(read[cont][POSITION]) + int(read[cont][LENGTH]) > int(sfs[0]):
-                #sfs = []
-                print("entro")
-                #sfs.append(read[cont][POSITION])
-                #sfs.append(int(read[cont+1][POSITION])+int(read[cont+1][LENGTH])-int(read[cont][POSITION]))
                 posizione = int(sfs[0])
                 sfs[0] = read[cont][POSITION]
                 sfs[1] = posizione + int(sfs[1]) - int(read[cont][POSITION])
@@ -96,26 +94,27 @@ def mergeRead(lista):
         #AATAACACA 
         #  TAACACAGAG
         #    ACACAGAGC
-        #CACAGAGCG
+        #     CACAGAGCG
         listStringhe = stringhe.split()
-        prima = listStringhe[len(listStringhe)-1]
-        ultima = listStringhe[0]
+        if not len(listStringhe) == 0:
+            prima = listStringhe[len(listStringhe)-1]
+            ultima = listStringhe[0]
        
-        #trovare parte in comune tra prima e ultima 
-        contt = []
-        cont = 0
-        #il for serve perche se sono diversi smette l'iterazione
-        for index in range (0, len(prima)):
-            for i in range (0, len(ultima)):
-                while prima[index] == ultima[i] and i<len(ultima)-1:
-                    i = i + 1
-                    cont = cont + 1
-            contt.append(cont)
-        common = min(contt)
-        str = prima + ultima[common+1:]
-        print(str)
-
-    print(sfs)
+            #trovare parte in comune tra prima e ultima 
+            contt = []
+            cont = 0
+            #il for serve perche se sono diversi smette l'iterazione
+            for index in range (0, len(prima)):
+                for i in range (0, len(ultima)):
+                    while prima[index] == ultima[i] and i<len(ultima)-1:
+                        i = i + 1
+                        cont = cont + 1
+                contt.append(cont)
+            common = min(contt)
+            str = prima + ultima[common+1:]
+            ris.append(str)
+    #in sfs ce lunghezza e posizione iniziale dell overleap
+    return ris
             
         
             
@@ -192,10 +191,13 @@ while(scelta != 8):
     if scelta == 7:
         #lista di liste in cui ho ogni posizione una read contentente tutte le sequence
         read = getRead(lis)
-        
+        print(len(read))
         #un lista contente tutte le read complete
-        read = mergeRead(read[:1])
         
+        read = mergeRead(read)
+        
+        #ritorna la stringa unificata per ogni read
+        print(read)
         #printList(read)
 
     scelta = menu()
