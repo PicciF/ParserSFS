@@ -79,8 +79,10 @@ def sostitutionAst(lista):
 def mergeRead(lista):
     
     for read in lista:
-        sfs = [read[0][POSITION], read[0][LENGTH]]
+        sfs = [read[0][POSITION], read[0][LENGTH], read[0][SFS]]
+        stringhe = ""
         for cont in range(1, len(read)):
+            #qui entro se trovo due stringhe che sono in overleap
             if int(read[cont][POSITION]) + int(read[cont][LENGTH]) > int(sfs[0]):
                 #sfs = []
                 print("entro")
@@ -89,6 +91,30 @@ def mergeRead(lista):
                 posizione = int(sfs[0])
                 sfs[0] = read[cont][POSITION]
                 sfs[1] = posizione + int(sfs[1]) - int(read[cont][POSITION])
+                stringhe = stringhe + read[cont][SFS] + " "
+        #ora devo unire le stringhe
+        #AATAACACA 
+        #  TAACACAGAG
+        #    ACACAGAGC
+        #CACAGAGCG
+        listStringhe = stringhe.split()
+        prima = listStringhe[len(listStringhe)-1]
+        ultima = listStringhe[0]
+       
+        #trovare parte in comune tra prima e ultima 
+        contt = []
+        cont = 0
+        #il for serve perche se sono diversi smette l'iterazione
+        for index in range (0, len(prima)):
+            for i in range (0, len(ultima)):
+                while prima[index] == ultima[i] and i<len(ultima)-1:
+                    i = i + 1
+                    cont = cont + 1
+            contt.append(cont)
+        common = min(contt)
+        str = prima + ultima[common+1:]
+        print(str)
+
     print(sfs)
             
         
