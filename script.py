@@ -7,6 +7,9 @@
 - funzione che verifichi la similarita
 '''
 #dichiarazione costanti
+from itertools import count
+
+
 ID = 0
 SFS = 1
 POSITION = 2
@@ -78,23 +81,39 @@ def sostitutionAst(lista):
     return lista
 def mergeRead(lista):
     ris = []
+    totale = []
     for read in lista:
         sfs = [read[0][POSITION], read[0][LENGTH], read[0][SFS]]
         
         stringhe = ""
-
+        risultofinale = []
+        ov=0
         for cont in range(1, len(read)):
             #qui entro se trovo due stringhe che sono in overleap
             if int(read[cont][POSITION]) + int(read[cont][LENGTH]) > int(sfs[0]):
+                ov+=1
                 posizione = int(sfs[0])
                 sfs[0] = read[cont][POSITION]
                 sfs[1] = posizione + int(sfs[1]) - int(read[cont][POSITION])
                 stringhe = stringhe + read[cont][SFS] + " "
+            else:
+                #prendere sfs non overlap
+                sfs[0] = read[cont][POSITION]
+                sfs[1] = read[cont][LENGTH]
+                sfs[2] = read[cont][SFS]
+                app = [read[cont]]
+                risultofinale.append(app)
+                
+                #print(risultofinale)
         #ora devo unire le stringhe
         #AATAACACA 
         #  TAACACAGAG
         #    ACACAGAGC
         #     CACAGAGCG
+        
+        #qui ho solo quelle non overlappate in risultofinale
+        #printList(risultofinale)
+        
         listStringhe = stringhe.split()
         if not len(listStringhe) == 0:
             prima = listStringhe[len(listStringhe)-1]
@@ -113,8 +132,39 @@ def mergeRead(lista):
             common = min(contt)
             str = prima + ultima[common+1:]
             ris.append(str)
-    #in sfs ce lunghezza e posizione iniziale dell overleap
-    return ris
+        #in sfs ce lunghezza e posizione iniziale dell overleap
+        #in ris ho l overlap fuso
+
+        listone = ["*"] * 20000
+        #listone = []
+        count = 0
+        
+        for i in range(0, len(risultofinale)-1):
+            singleSFS = risultofinale[i]
+            #print(singleSFS[0][SFS])
+            
+            #print("---")
+            count = int(singleSFS[0][POSITION])
+         
+            for x in singleSFS[0][SFS]:
+                #count = int(singleSFS[0][POSITION])
+                #print(x)   
+                #listone.insert(count, x)
+                print(len(listone))
+                
+                listone[count] = x
+                count+=1
+                print(len(listone))
+                
+               
+                
+                
+            #print(listone)
+            #return listone
+
+        totale.append(listone)       
+    
+    return totale
             
         
             
@@ -191,13 +241,50 @@ while(scelta != 8):
     if scelta == 7:
         #lista di liste in cui ho ogni posizione una read contentente tutte le sequence
         read = getRead(lis)
-        print(len(read))
+        
         #un lista contente tutte le read complete
+        cont = 0
         
-        read = mergeRead(read)
+        #printList(read[0])
+        test = []
+        test.append(read[0])
+        test.append(read[1])
+
+        read = mergeRead(test)
+        stringa = ""
         
+        file = open("sequenza.txt", "w")
+        '''for x in read:
+            stringa+=x
+            print(x)
+        file.write(stringa)
+        file.close()
+        exit()'''
+        ls =[]
+        for r in read:
+            for x in r:
+                
+                stringa += x
+            
+            ls.append(stringa)
+            #print("-------------")
         #ritorna la stringa unificata per ogni read
-        print(read)
+        print(len(ls[0]))
+        file = open("sequenza.txt", "w")
+        file.write(ls[0])
+        file.close()
+        #print(read)
+        #print(len(read))
         #printList(read)
+    if scelta == 10:
+        lista =["*"] * 5
+        lista.insert(2, 8)
+        lista.insert(5, 5)
+        string = ""
+        print(lista[:1])
+        for x in lista:
+            print(type(str(x)))
+            string+=str(x)
+        print(string)
 
     scelta = menu()
