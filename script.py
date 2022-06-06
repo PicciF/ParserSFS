@@ -1,6 +1,8 @@
 #parser di file .sfs 
 #TO-DO rinominare in modo più sensato le variabili
 from difflib import SequenceMatcher
+import rapidfuzz
+from email.errors import InvalidMultipartContentTransferEncodingDefect
 ID = 0
 SFS = 1
 POSITION = 2
@@ -200,7 +202,7 @@ def mergeRead(lista):
     
     for i in range(0, len(sfsUnite)):
         #ho modificato 
-        #mettere dimensione dinamica in base alla lunghezza della read
+        #TO-DO mettere dimensione dinamica in base alla lunghezza della read
         finale= ["*"] * 25000
         for x in range(0, len(posizioni[i])):
             cont = int(posizioni[i][x][0])
@@ -251,7 +253,8 @@ def formatting(lista):
 
 
 lista = []
-file = open("solution_batch_0.sfs", 'r')
+file = open("./ParserSFS/solution_batch_0.sfs", 'r')
+
 for single in file:
     lista.append(single)
 file.close()
@@ -270,9 +273,65 @@ for i in lis:
     if not ap in idList:
         idList.append(ap)
 
-
-
-
+def similarita():
+    file = open("./ParserSFS/sequenza.txt", 'r')
+    contatore = 0
+    id = []
+    reads = []
+    #taking sfs and subdivision for read and saving relative read id
+    for i in file:
+        if contatore%2==0:
+            id.append(i)
+        else:
+            splitting = i.split("*")
+            splittingCleared = list(filter(None, splitting))
+            splittingCleared.pop()
+            reads.append(splittingCleared)
+        contatore = contatore + 1
+    file.close()
+    #subdivision in cluster for similarity up 80%
+    cluster = []
+    appoggio = []
+    ratio = []
+    ratioTotal = []
+    #create first cluster with first sfs
+    if len(cluster)==0:
+        appoggio.append(reads[0][0])
+        cluster.append(appoggio)
+    
+    for x in range(0, len(reads)):
+        for y in range(0, len(reads[x])):
+            #loop confronta sfs con ogni singola sfs del cluster, ricevo tutti
+            #i ratio, media, se superiore a 80 butto li
+            print("Sto eseguendo il controllo sulla sfs ", reads[x][y])
+            for i in range(0, len(cluster)):
+                
+                for j in range(0, len(cluster[i])):
+                    ratio.append(rapidfuzz.fuzz.ratio(reads[x][y], cluster[i][j]))
+                ratioTotal.append(sum(ratio)/len(ratio))
+                ratio = []
+                print("nel cluster ", i, " ha ratio ", ratioTotal[i])
+            for index in range(0, len(ratioTotal)):
+                
+                if ratioTotal[index] > 79:
+                    print("ho aggiunto ", reads[x][y], "in cluster n: ", index)
+                    cluster[index].append(reads[x][y])
+                    break
+                    
+                elif index==len(ratioTotal)-1:
+                    appoggio = []
+                    appoggio.append(reads[x][y])
+                    print("ho creato un nuovo cluster")
+                    cluster.append(appoggio)
+                    break
+            ratioTotal=[]      
+    #file = open("./ParserSFS/cluster.txt", 'w')
+            
+    print((cluster))    
+                
+                    
+        
+        
 
 scelta = menu()
 
@@ -330,6 +389,8 @@ while(scelta != 8):
         file = open("sequenza.txt", "w")
         #inserire for 
         for i in range(0, len(read)):
+            file.write(idList[i])
+            file.write("\n")
             file.write("".join(read[i]))
             file.write("\n")
         file.close()
@@ -362,26 +423,18 @@ while(scelta != 8):
         for i in range(0, len(readComplete)):
             new.write(idFile[i])
             new.write("".join(readComplete[i]))
-        new.close()    
-        
-        
-        
-        
-       
-            
-            
-        
-            
-            
-    if scelta == 10:
-        lista =["*"] * 5
-        lista.insert(2, 8)
-        lista.insert(5, 5)
-        string = ""
-        print(lista[:1])
-        for x in lista:
-            print(type(str(x)))
-            string+=str(x)
-        print(string)
+        new.close()  
+    if scelta==10:
+        file = open('sequenza.txt', 'r')
+        fileString = ""
+        for c in file:
+            for car in c:
+                fileString = fileString + car
+
+        test = fileString.split('*')     
+        print(list(filter(None,test)))
+    if scelta==11:
+        similarita()
+
 
     scelta = menu()
