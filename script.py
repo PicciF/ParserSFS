@@ -325,9 +325,14 @@ def similarita():
                     cluster.append(appoggio)
                     break
             ratioTotal=[]      
-    #file = open("./ParserSFS/cluster.txt", 'w')
+    file = open("./ParserSFS/cluster.txt", 'w')
+    for i in range(0, len(cluster)):
+        file.write("Cluster Numero " + str(i+1) + " ")
+        file.write(", ".join(cluster[i]))
+        file.write("\n")
+    file.close()
             
-    print((cluster))    
+    #print((cluster))    
                 
                     
         
