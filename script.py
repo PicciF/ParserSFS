@@ -1,6 +1,7 @@
 #parser di file .sfs 
 #TO-DO rinominare in modo più sensato le variabili
 from difflib import SequenceMatcher
+import logging
 import rapidfuzz
 from email.errors import InvalidMultipartContentTransferEncodingDefect
 ID = 0
@@ -303,33 +304,47 @@ def similarita():
         for y in range(0, len(reads[x])):
             #loop confronta sfs con ogni singola sfs del cluster, ricevo tutti
             #i ratio, media, se superiore a 80 butto li
-            print("Sto eseguendo il controllo sulla sfs ", reads[x][y])
+            # da tenere  print("Sto eseguendo il controllo sulla sfs ", reads[x][y])
             for i in range(0, len(cluster)):
                 
                 for j in range(0, len(cluster[i])):
                     ratio.append(rapidfuzz.fuzz.ratio(reads[x][y], cluster[i][j]))
                 ratioTotal.append(sum(ratio)/len(ratio))
                 ratio = []
-                print("nel cluster ", i, " ha ratio ", ratioTotal[i])
+                # da tenere  print("nel cluster ", i, " ha ratio ", ratioTotal[i])
             for index in range(0, len(ratioTotal)):
-                
                 if ratioTotal[index] > 79:
-                    print("ho aggiunto ", reads[x][y], "in cluster n: ", index)
+                    # da tenere print("ho aggiunto ", reads[x][y], "in cluster n: ", index)
                     cluster[index].append(reads[x][y])
                     break
                     
                 elif index==len(ratioTotal)-1:
                     appoggio = []
                     appoggio.append(reads[x][y])
-                    print("ho creato un nuovo cluster")
+                    # da tenere print("ho creato un nuovo cluster")
                     cluster.append(appoggio)
                     break
             ratioTotal=[]      
     file = open("./ParserSFS/cluster.txt", 'w')
+    
+    listaApp = []
+    import collections
+    for r in reads:
+        for j in r:
+            listaApp.append(j)
+    weight = collections.Counter(listaApp)
+   
+
     for i in range(0, len(cluster)):
-        file.write("Cluster Numero " + str(i+1) + " ")
-        file.write(", ".join(cluster[i]))
+        file.write("Cluster Numero " + str(i+1) + ": ")
+        for sfs in cluster[i]:
+            
+            file.write("SFS: " + sfs + " ")
+            file.write("Peso: " + str(weight.get(sfs)) + ", ")
+        
+        #file.write(", ".join(cluster[i]))
         file.write("\n")
+        
     file.close()
             
     #print((cluster))    
