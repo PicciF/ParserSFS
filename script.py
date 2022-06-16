@@ -349,7 +349,59 @@ def similarita():
             
     #print((cluster))    
                 
-                    
+def indicizza():
+    file = open("./ParserSFS/cluster.txt", 'r')
+    rappresentanti = []
+    sfs = []
+    appsfs = []
+    peso = []
+    apppeso = []
+    for row in file:
+        #pulisco il file e prendo sfs e peso
+        cluster = row.split(" ") 
+        cluster = cluster[4:]
+        for c in cluster:
+            if c=="SFS:":
+                cluster.remove(c)
+        cluster.remove("\n")
+        for index in range(0, len(cluster), 3):
+            appsfs.append(cluster[index])
+            apppeso.append(cluster[index+2].replace(",",""))
+        
+        sfs.append(appsfs)
+        peso.append(apppeso)
+        appsfs = []
+        apppeso = []
+        
+        #maxi = max(peso)
+        #rappresentanti.append(sfs[peso.index(maxi)])
+        #print(rappresentanti)
+        #funziona solo se ce exit dopo uno, va 
+        #messa una lista di appoggio in modo tale che sfs e peso diventi una lista di liste
+    #determino le sfs rappresentati per ogni cluster
+    file.close()
+    for i in range(0, len(peso)):
+        maxi = max(peso[i])
+        rappresentanti.append(sfs[i][peso[i].index(maxi)])
+    clusterDeleted = []
+    #rimozione e salvataggio del numero di cluster eliminato
+    for r in rappresentanti:
+        if len(r)<15:
+            clusterDeleted.append(rappresentanti.index(r))
+            rappresentanti.remove(r)
+    fileFasta = open("./ParserSFS/rappresentanti.fasta", "w")
+    for i in range(0, len(rappresentanti)):
+        fileFasta.write(rappresentanti[i])
+        fileFasta.write("\n")
+    
+    
+    
+    fileFasta.close()
+
+    
+        
+        
+                      
         
         
 
@@ -455,6 +507,8 @@ while(scelta != 8):
         print(list(filter(None,test)))
     if scelta==11:
         similarita()
+    if scelta==12:
+        indicizza()
 
 
     scelta = menu()
