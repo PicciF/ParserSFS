@@ -55,13 +55,29 @@ def printList(lista):
 def getRead(lista):
     ris = []
     app = []
+    #inserire inizializzazione adeguata cosi non prende il primo della prima read
+    r = []
     id = lista[0][0]
+    prima = True
     for read in lista:
         if read[0] == id:
-            app.append(read)
+            if prima:
+                if(not(len(r))==0):
+                    app.append(r)
+                app.append(read)
+                prima = False
+            else:
+                app.append(read)
         else:
             id = read[0]
-            ris.append(app)
+            
+            prima = True
+            #per evitare di perdere/avere liste vuote in caso di singola sfs per read
+            if(len(app)==0):
+                ris.append([r])
+            else:
+                ris.append(app)
+            r = read
             app = []
     return ris
 #rimozione dell'asterisco 
@@ -135,11 +151,23 @@ def mergeRead(lista):
     nonOverPosizioni = []
     readOv = []
     readPositionOv = []
+
+    #print((lista[34][0][1])) 
+    # da errore perche essendo un solo elemento non crea una 
+    # lista di liste
+    # ah no questa print crea una lista vuota e quindi il patatrac
+    # controllare dove creo la lista, probabile rimane inizializzata una var
+    # probabile fix basta metttere un controllo se read lunga 1 mettere quella
+    
+    sfsRead= []
+    sfsReadPos = []
     
     for read in lista:
+        
+        
         sfs = [read[0][POSITION], read[0][LENGTH], read[0][SFS]]
-        sfsRead = []
-        sfsReadPos = []
+         
+        
         singoloOv = []
         singolaPositionOv = []
         gruppoOv = []
@@ -147,8 +175,10 @@ def mergeRead(lista):
         risultofinale = []
         posizioniRisultofinale =[]
         #qui ce la prima sfs
+        
         for cont in range(1, len(read)):
             #qui entro se trovo due stringhe che sono in overleap
+           
             if int(read[cont][POSITION]) + int(read[cont][LENGTH]) > int(sfs[0]):
                 over = True
                 posizione = int(sfs[0])
@@ -161,6 +191,7 @@ def mergeRead(lista):
                 
             else:
                 #prendere sfs non overlap
+                
                 if(over==True):
                     singoloOv.append(sfs[2])
                     singolaPositionOv.append(sfs[0])
@@ -170,9 +201,11 @@ def mergeRead(lista):
                 sfs[2] = read[cont][SFS]
                 
                 app = [read[cont]]
+
                 risultofinale.append(read[cont][SFS])
                 posizioniRisultofinale.append(read[cont][POSITION])
-
+                
+                
                 gruppoOv.append(singoloOv)
                 singoloOv = []
                 gruppoPositionOv.append(singolaPositionOv)
@@ -186,61 +219,88 @@ def mergeRead(lista):
                 singoloOv = []
                 gruppoPositionOv.append(singolaPositionOv)
                 singolaPositionOv = []
-            sfsReadPos.append(posizioniRisultofinale)
-            sfsRead.append(risultofinale)
-        nonOver.append(sfsRead)
-        nonOverPosizioni.append(sfsReadPos)
+            #applicata modifica con quadre
+            
+        sfsReadPos.append([posizioniRisultofinale])
+        sfsRead.append(risultofinale)
         
+       
+        #nonOver.append(sfsRead)
+        
+        
+        
+        #nonOverPosizioni.append(sfsReadPos)
+        #if len(sfsReadPos)==0:
+        #    nonOverPosizioni.append([sfsReadPos])
+        #else:
+        #    nonOverPosizioni.append(sfsReadPos)
         
         readOv.append(gruppoOv)
-
         readPositionOv.append(gruppoPositionOv)
-
+    
+   
     sfsUnite, posizioni = fusione(readOv, readPositionOv)
-    
+    cc = 0
     #metto in listone le sfs non in over
+ 
     f = []
-    
+    #
+   
     for i in range(0, len(sfsUnite)):
-        #ho modificato 
-        #TO-DO mettere dimensione dinamica in base alla lunghezza della read
-        finale= ["*"] * 25000
-        for x in range(0, len(posizioni[i])):
-            cont = int(posizioni[i][x][0])
-            for c in sfsUnite[i][x]:
-                finale[cont-1] = c
-                cont = cont + 1
-        for x in range(0, len(nonOverPosizioni[i])):
-            cont = int(nonOverPosizioni[i][x][0])
-            for c in nonOver[i][x]:
-                finale[cont-1] = c
-                cont = cont + 1
-        f.append(finale)           
-        #ora devo unire le stringhe
-        #AATAACACA 
-        #  TAACACAGAG
-        #    ACACAGAGC
-        #     CACAGAGCG
-        #AATAACACAGAGCG
-        
-        #qui ho solo quelle non overlappate in risultofinale
-        #printList(risultofinale)
-        ##ris = []
-        #print(overlappate[2])
-        #print(position[2])
-        
-
+        #print(idList[i], " ", i)
+        print("Sto processando una nuova read ", i)
+        if not len(sfsUnite[i])==0:
+            #TO-DO create method to set dim dynamically
+            '''print()
+            print(posizioni[i][0][0], " ", posizioni[i][0][1])
+            massimo = 0
+            if not len(sfsReadPos[i][0]) == 0:
+                massimo = max(sfsReadPos[i][0])
+            mam = max(posizioni[i][0])
             
+            if int(massimo) + len(sfsRead[i]) > int(posizioni[i][0][0])+  int(posizioni[i][0][1]):
+                print("sono qui")
+                dim = (massimo+len(sfsRead[i]))
+            else:
+                print("scherzavo")
+                dim = (int(posizioni[i][0][0])+  int(posizioni[i][0][1])) 
+            '''
+            dim = 10000
+            
+            finale = ["*"] * dim
+            
+            for x in range(0, len(sfsUnite[i])):
+               
+                cont = int(posizioni[i][x][0])
+
+                for c in sfsUnite[i][x]:
+                    finale[cont] = c
+                    cont+=1
+                #qui arriva giusto
         
-        #in sfs ce lunghezza e posizione iniziale dell overleap
-        #in ris ho l overlap f  
-    return f
+        
+        
+        
+        for j in range(0, len(sfsRead[i])):
+            cont = int(sfsReadPos[i][0][j]) - 1        
+            #print("lunghezza ", len(finale))       
+            #print(idList[i])
+            for c in sfsRead[i][j]:    
+                #da un errore qui, non so il perchè
+                finale[cont] = c
+                cont+=1
+        
+        f.append(finale)
+
     
-            
+  
+   
+      
         
-            
-
-        
+                
+    
+    return f
+      
 def formatting(lista):
     app = []
     ris = []
@@ -254,7 +314,8 @@ def formatting(lista):
 
 
 lista = []
-file = open("./ParserSFS/solution_batch_0.sfs", 'r')
+#/home/picci/PingPong/asgal-wd/solution_batch_0.sfs
+file = open("/home/picci/PingPong/asgal-wd/solution_batch_0.sfs", 'r')
 
 for single in file:
     lista.append(single)
@@ -275,7 +336,7 @@ for i in lis:
         idList.append(ap)
 
 def similarita():
-    file = open("./ParserSFS/sequenza.txt", 'r')
+    file = open("sequenza.txt", 'r')
     contatore = 0
     id = []
     reads = []
@@ -315,17 +376,20 @@ def similarita():
             for index in range(0, len(ratioTotal)):
                 if ratioTotal[index] > 79:
                     # da tenere print("ho aggiunto ", reads[x][y], "in cluster n: ", index)
-                    cluster[index].append(reads[x][y])
+                    if not reads[x][y] in cluster[index]:
+                        cluster[index].append(reads[x][y])
+                    
                     break
                     
                 elif index==len(ratioTotal)-1:
                     appoggio = []
                     appoggio.append(reads[x][y])
                     # da tenere print("ho creato un nuovo cluster")
+                    
                     cluster.append(appoggio)
                     break
             ratioTotal=[]      
-    file = open("./ParserSFS/cluster.txt", 'w')
+    file = open("cluster.txt", 'w')
     
     listaApp = []
     import collections
@@ -334,6 +398,7 @@ def similarita():
             listaApp.append(j)
     weight = collections.Counter(listaApp)
    
+
 
     for i in range(0, len(cluster)):
         file.write("Cluster Numero " + str(i+1) + ": ")
@@ -350,7 +415,7 @@ def similarita():
     #print((cluster))    
                 
 def indicizza():
-    file = open("./ParserSFS/cluster.txt", 'r')
+    file = open("cluster.txt", 'r')
     rappresentanti = []
     sfs = []
     appsfs = []
@@ -389,7 +454,7 @@ def indicizza():
         if len(r)<15:
             clusterDeleted.append(rappresentanti.index(r))
             rappresentanti.remove(r)
-    fileFasta = open("./ParserSFS/rappresentanti.fasta", "w")
+    fileFasta = open("rappresentanti.fastq", 'w')
     for i in range(0, len(rappresentanti)):
         fileFasta.write(rappresentanti[i])
         fileFasta.write("\n")
@@ -447,19 +512,23 @@ while(scelta != 8):
     if scelta == 7:
         #lista di liste in cui ho ogni posizione una read contentente tutte le sequence
         read = getRead(lis)
+        
         #un lista contente tutte le read complete
         cont = 0
         read = mergeRead(read)
         stringa = ""
         ls =[]
+        
         for r in read:
             stringa=""
             for x in r:
                 stringa += x  
             ls.append(stringa)
+        
         #ritorna la stringa unificata per ogni read
-        file = open("sequenza.txt", "w")
-        #inserire for 
+        
+        file = open("sequenza.txt", 'w')
+       
         for i in range(0, len(read)):
             file.write(idList[i])
             file.write("\n")
@@ -509,6 +578,8 @@ while(scelta != 8):
         similarita()
     if scelta==12:
         indicizza()
+    
+        
 
 
     scelta = menu()
