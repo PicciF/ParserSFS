@@ -2,12 +2,13 @@
 #TO-DO add argument
 #TO-DO rinominare in modo più sensato le variabili
 from difflib import SequenceMatcher
+from importlib.resources import path
+from operator import length_hint
 import rapidfuzz
+import argparse
+#/home/picci/tmp/ParserSFS/solution_batch_0.sfs
 
-ID = 0
-SFS = 1
-POSITION = 2
-LENGTH = 3
+
 
 def inTheMeaddle(lista, a, b):
     ris = []
@@ -23,6 +24,7 @@ def getFromSFS(lista, sfs):
         if allSFS[cont] == sfs:
             return lista[cont][1], lista[cont][2]
 
+#probabily is to remove 
 def menu():
     print("1. Stampa tutte le SFS")
     print("2. Stampa tutte le posizioni")
@@ -47,35 +49,35 @@ def get(lista, x):
 def printList(lista):
     for l in lista:
         print(l)
-def getRead(lista):
-    ris = []
-    app = []
-    #TO-DO inserire inizializzazione adeguata cosi non prende il primo della prima read
-    r = []
-    id = lista[0][0]
-    prima = True
-    for read in lista:
+
+def getRead(list):
+    result = []
+    support = []
+    precRead = []
+    id = list[0][0]
+    first = True
+    for read in list:
         if read[0] == id:
-            if prima:
-                if(not(len(r))==0):
-                    app.append(r)
-                app.append(read)
-                prima = False
+            if first:
+                if(not(len(precRead))==0):
+                    support.append(precRead)
+                support.append(read)
+                first = False
             else:
-                app.append(read)
+                support.append(read)
         else:
             id = read[0]
             
-            prima = True
-            if(len(app)==0):
-                ris.append([r])
+            first = True
+            if(len(support)==0):
+                result.append([precRead])
             else:
-                ris.append(app)
-            r = read
-            app = []
-    return ris
+                result.append(support)
+            precRead = read
+            support = []
+    return result
 
-def sostitutionAst(lista):
+def asteriskRemoval(lista):
     idRead = "" 
     for read in lista:
         if not read[0] == "*":
@@ -84,58 +86,59 @@ def sostitutionAst(lista):
             read[0] = idRead
     return lista
 
-def fondi(prima, seconda):
-    match = SequenceMatcher(None, prima, seconda).find_longest_match(0, len(prima), 0, len(seconda))
-    common = prima[match.a: match.a + match.size]
-    prendere = len(seconda) - len(common)
-    str = prima + seconda[-prendere:]
+#join two single sfs
+def union(first, second):
+    match = SequenceMatcher(None, first, second).find_longest_match(0, len(first), 0, len(second))
+    common = first[match.a: match.a + match.size]
+    take = len(second) - len(common)
+    str = first + second[-take:]
     return str
 
 
-def fusione(sfs, posizioni):
-    readPosizioniRis = []
-    readRis = []
+def fusion(sfs, position):
+    readPositionResult = []
+    readResult = []
     
     for read in range(0, len(sfs)):
-        ris = []
-        posizioniRis = []
+        result = []
+        positionResult = []
         for i in range(0, len(sfs[read])):
             if not len(sfs[read][i]) == 0:
-                prima = sfs[read][i][len(sfs[read][i])-1]
-                primaPosizione = posizioni[read][i][len(posizioni[read][i])-1]
+                first = sfs[read][i][len(sfs[read][i])-1]
+                firstPosition = position[read][i][len(position[read][i])-1]
                 
-                ultima = sfs[read][i][0]
-                ultimaPosizione = posizioni[read][i][0]
-                app = []
+                last = sfs[read][i][0]
+                lastPosition = position[read][i][0]
+                support = []
                 #creare funzione che ritorni true se e overlap e false se non lo e
-                if not (int(primaPosizione)+len(prima)>int(ultimaPosizione)):
-                    risultatino = sfs[read][i][0]
-                    app.append(primaPosizione)
-                    app.append(ultimaPosizione)
-                    posizioniRis.append(app)
+                if not (int(firstPosition)+len(first)>int(lastPosition)):
+                    res = sfs[read][i][0]
+                    support.append(firstPosition)
+                    support.append(lastPosition)
+                    positionResult.append(support)
                     for x in range(1, len(sfs[read][i])):
-                        risultatino = fondi(sfs[read][i][x], risultatino )
-                    ris.append(risultatino)  
+                        res = union(sfs[read][i][x], res )
+                    result.append(res)  
                     #ciclo che faccia la fusione una alla volta
 
                 else:
-                    contt = []
+                    contMin = []
                     cont = 0
-                    for index in range (0, len(prima)):
-                        for i in range (0, len(ultima)):
-                            while prima[index] == ultima[i] and i<len(ultima)-1:
+                    for index in range (0, len(first)):
+                        for i in range (0, len(last)):
+                            while first[index] == last[i] and i<len(last)-1:
                                 i = i + 1
                                 cont = cont + 1
-                        contt.append(cont)
-                    common = min(contt)     
-                    str = prima + ultima[common+1:]
-                    app.append(primaPosizione)
-                    app.append(ultimaPosizione)
-                    posizioniRis.append(app)
-                    ris.append(str)
-        readPosizioniRis.append(posizioniRis)
-        readRis.append(ris)
-    return readRis, readPosizioniRis
+                        contMin.append(cont)
+                    common = min(contMin)     
+                    str = first + last[common+1:]
+                    support.append(firstPosition)
+                    support.append(lastPosition)
+                    positionResult.append(support)
+                    result.append(str)
+        readPositionResult.append(positionResult)
+        readResult.append(result)
+    return readResult, readPositionResult
     
 def mergeRead(lista):
     finale = []
@@ -190,7 +193,7 @@ def mergeRead(lista):
         sfsRead.append(risultofinale)
         readOv.append(gruppoOv)
         readPositionOv.append(gruppoPositionOv)
-    sfsUnite, posizioni = fusione(readOv, readPositionOv)
+    sfsUnite, posizioni = fusion(readOv, readPositionOv)
     
     f = []
     for i in range(0, len(sfsUnite)):
@@ -229,31 +232,18 @@ def mergeRead(lista):
 
     return f
       
-def formatting(lista):
-    app = []
-    ris = []
-    for l in lista:
-        app = l.split()
-        ris.append(app)
-    ris = sostitutionAst(ris)
-    return ris   
+def formatting(list):
+    support = []
+    result = []
+    for l in list:
+        support = l.split()
+        result.append(support)
+    result = asteriskRemoval(result)
+    return result   
  
-lista = []
 
-file = open("/home/picci/PingPong/asgal-wd/solution_batch_0.sfs", 'r')
 
-for single in file:
-    lista.append(single)
-file.close()
-lis = formatting(lista)
-
-idList = []
-for i in lis:
-    ap = i[0]
-    if not ap in idList:
-        idList.append(ap)
-
-def similarita():
+def similarity():
     file = open("sequenza.txt", 'r')
     contatore = 0
     id = []
@@ -331,7 +321,7 @@ def similarita():
     file.close()
             
                 
-def indicizza():
+def index():
     file = open("cluster.txt", 'r')
     rappresentanti = []
     sfs = []
@@ -361,92 +351,131 @@ def indicizza():
         rappresentanti.append(sfs[i][peso[i].index(maxi)])
     clusterDeleted = []
     #removing and saving the number of clusters deleted
+    rappresentantiVeri = [] 
+    #for i in range(0, len(rappresentanti)):
+    ##    print(rappresentanti[i])
+     
     for r in rappresentanti:
         if len(r)<15:
             clusterDeleted.append(rappresentanti.index(r))
-            rappresentanti.remove(r)
+        else:
+            rappresentantiVeri.append(r)
+    #print(len(rappresentantiVeri))
+
     fileFasta = open("rappresentanti.fastq", 'w')
-    for i in range(0, len(rappresentanti)):
+    
+    for i in range(0, len(rappresentantiVeri)):
         fileFasta.write(">"+ str(i+1))
         fileFasta.write("\n")
-        fileFasta.write(rappresentanti[i])
+        fileFasta.write(rappresentantiVeri[i])
         fileFasta.write("\n")
-    
-    
-    
+
     fileFasta.close()   
 
-scelta = menu()
+#scelta = menu()
+parser = argparse.ArgumentParser(description="Welcome in MONI")
+#se metti il trattino indica che è opzionale, dire a nada
+parser.add_argument("o", type=int, default=1, help="Operazione")
+parser.add_argument("sfsFile", help="insert sfs file path" )
 
+
+args = parser.parse_args()
+
+choice = int(args.o)
+pathSfsFile = str(args.sfsFile)
+
+
+ID = 0
+SFS = 1
+POSITION = 2
+LENGTH = 3
+
+firstList = []
+
+file = open(pathSfsFile, 'r')
+
+for single in file:
+    firstList.append(single)
+file.close()
+list = []
+list = formatting(firstList)
+
+idList = []
+for i in list:
+    id = i[0]
+    if not id in idList:
+        idList.append(id)
 
 
 #if we use python 3.10 we could use switch statement
 #so for now use simply if statement
 
-while(scelta != 11):
-    if scelta == 1:
-        #print all sfs
-        sfs = get(lis, SFS)
-        printList(sfs)
-    if scelta == 2:
-        #print all positions
-        sfs = get(lis, POSITION)
-        printList(sfs)
-    if scelta == 3:
-        #print all lenghts
-        sfs = get(lis, LENGTH)
-        printList(sfs)
-    if scelta == 4:
-        #print all id
-        sfs = get(lis, ID)
-        printList(sfs)
-    if scelta == 5:
-        #print position and length from specif sfs
-        sfsUtente = input("Inserisci la sfs di cui vuoi posizione e lunghezza: ")
-        sfsUtente = sfsUtente.upper() 
-        posizione, lunghezza = getFromSFS(lis, sfsUtente)
-        print("la posizione della sfs inserita è: " + posizione)
-        print("La lunghezza della sfs inserita è: " + lunghezza)
-    if scelta == 6:
-        a = int(input("Inserisci la posizione minima compresa: "))
-        b = int(input("Inserisci la posizione massima compresa: "))
-        sfs = inTheMeaddle(lis, a, b)
-        printList(sfs)
-    if scelta == 7:
-        #list of lists, in which for each position have a read, in which have all sequences
-        read = getRead(lis)
-        cont = 0
-        read = mergeRead(read)
-        stringa = ""
-        ls =[]
-        
-        for r in read:
-            stringa=""
-            for x in r:
-                stringa += x  
-            ls.append(stringa)
-        
-        #return unified string 
-        file = open("sequenza.txt", 'w')
-       
-        for i in range(0, len(read)):
-            file.write(idList[i])
-            file.write("\n")
-            file.write("".join(read[i]))
-            file.write("\n") 
-        file.close()    
-    if scelta==8:
-        similarita()
-    if scelta==9:
-        indicizza()
-    if scelta==10:
-        file = open('sequenza.txt', 'r')
-        fileString = ""
-        for c in file:
-            for car in c:
-                fileString = fileString + car
+#while(scelta != 11):
+if choice == 1:
+    #print all sfs
+    sfs = get(list, SFS)
+    printList(sfs)
+if choice == 2:
+    #print all positions
+    sfs = get(list, POSITION)
+    printList(sfs)
+if choice == 3:
+    #print all lenghts
+    sfs = get(list, LENGTH)
+    printList(sfs)
+if choice == 4:
+    #print all id
+    sfs = get(list, ID)
+    printList(sfs)
+if choice == 5:
+    #print position and length from specif sfs
+    sfsUser = input("Inserisci la sfs di cui vuoi posizione e lunghezza: ")
+    sfsUser = sfsUser.upper() 
+    position, length = getFromSFS(list, sfsUser)
+    print("la posizione della sfs inserita è: " + position)
+    print("La lunghezza della sfs inserita è: " + length)
+if choice == 6:
+    a = int(input("Inserisci la posizione minima compresa: "))
+    b = int(input("Inserisci la posizione massima compresa: "))
+    sfs = inTheMeaddle(list, a, b)
+    printList(sfs)
+if choice == 7:
+    #list of lists, in which for each position have a read, in which have all sequences
+    read = getRead(list)
+    cont = 0
+    read = mergeRead(read)
+    str = ""
+    ls =[]
+    
+    for r in read:
+        str=""
+        for x in r:
+            str += x  
+        ls.append(str)
+    
+    #return unified string 
+    file = open("sequence.txt", 'w')
+    
+    for i in range(0, len(read)):
+        file.write(idList[i])
+        file.write("\n")
+        file.write("".join(read[i]))
+        file.write("\n") 
+    file.close()    
+if choice==8:
+    similarity()
+if choice==9:
+    index()
+if choice==11:
+    file = open('sequenza.txt', 'r')
+    fileString = ""
+    for c in file:
+        for car in c:
+            fileString = fileString + car
 
-        test = fileString.split('*')     
-        print(list(filter(None,test)))
+    test = fileString.split('*')     
+    print(list(filter(None,test)))
+if choice == 12:
+    getRead(list)
 
-    scelta = menu()
+    #scelta = menu()
