@@ -50,13 +50,13 @@ def printList(lista):
     for l in lista:
         print(l)
 
-def getRead(list):
+def getRead(record):
     result = []
     support = []
     precRead = []
-    id = list[0][0]
+    id = record[0][0]
     first = True
-    for read in list:
+    for read in record:
         if read[0] == id:
             if first:
                 if(not(len(precRead))==0):
@@ -140,102 +140,94 @@ def fusion(sfs, position):
         readResult.append(result)
     return readResult, readPositionResult
     
-def mergeRead(lista):
-    finale = []
+def mergeRead(record):
+    res = []
     readOv = []
     readPositionOv = []    
     sfsRead= []
     sfsReadPos = []
     
-    for read in lista:
+    for read in record:
         sfs = [read[0][POSITION], read[0][LENGTH], read[0][SFS]]
-        singoloOv = []
-        singolaPositionOv = []
-        gruppoOv = []
-        gruppoPositionOv = []
-        risultofinale = []
-        posizioniRisultofinale =[]
+        singleOv = []
+        singlePositionOv = []
+        groupOv = []
+        groupPositionOv = []
+        finalResult = []
+        positionFinalResutl =[]
         
         for cont in range(1, len(read)):
             if int(read[cont][POSITION]) + int(read[cont][LENGTH]) > int(sfs[0]):
                 #there is a overlap
                 over = True
                 posizione = int(sfs[0])
-                singoloOv.append(sfs[2])
-                singolaPositionOv.append(sfs[0])
+                singleOv.append(sfs[2])
+                singlePositionOv.append(sfs[0])
                 sfs[0] = read[cont][POSITION]
                 sfs[1] = posizione + int(sfs[1]) - int(read[cont][POSITION])
                 sfs[2] = read[cont][SFS]     
             else: 
                 if(over==True):
-                    singoloOv.append(sfs[2])
-                    singolaPositionOv.append(sfs[0])
+                    singleOv.append(sfs[2])
+                    singlePositionOv.append(sfs[0])
                     over = False
                 sfs[0] = read[cont][POSITION]
                 sfs[1] = read[cont][LENGTH]
                 sfs[2] = read[cont][SFS]
-                risultofinale.append(read[cont][SFS])
-                posizioniRisultofinale.append(read[cont][POSITION]) 
-                gruppoOv.append(singoloOv)
-                singoloOv = []
-                gruppoPositionOv.append(singolaPositionOv)
-                singolaPositionOv = []
+                finalResult.append(read[cont][SFS])
+                positionFinalResutl.append(read[cont][POSITION]) 
+                groupOv.append(singleOv)
+                singleOv = []
+                groupPositionOv.append(singlePositionOv)
+                singlePositionOv = []
             if cont==len(read)-1:
                 if over == True:
-                    singoloOv.append(sfs[2])
-                    singolaPositionOv.append(sfs[0])
+                    singleOv.append(sfs[2])
+                    singlePositionOv.append(sfs[0])
                     over = False
-                gruppoOv.append(singoloOv)
-                singoloOv = []
-                gruppoPositionOv.append(singolaPositionOv)
-                singolaPositionOv = []    
-        sfsReadPos.append([posizioniRisultofinale])
-        sfsRead.append(risultofinale)
-        readOv.append(gruppoOv)
-        readPositionOv.append(gruppoPositionOv)
-    sfsUnite, posizioni = fusion(readOv, readPositionOv)
+                groupOv.append(singleOv)
+                singleOv = []
+                groupPositionOv.append(singlePositionOv)
+                singlePositionOv = []    
+        sfsReadPos.append([positionFinalResutl])
+        sfsRead.append(finalResult)
+        readOv.append(groupOv)
+        readPositionOv.append(groupPositionOv)
+    sfsUnified, position = fusion(readOv, readPositionOv)
     
-    f = []
-    for i in range(0, len(sfsUnite)):
-        print("Sto processando una nuova read ", i)
-        if not len(sfsUnite[i])==0:
-            #TO-DO create method to set dim dynamically
-            '''print()
-            print(posizioni[i][0][0], " ", posizioni[i][0][1])
-            massimo = 0
-            if not len(sfsReadPos[i][0]) == 0:
-                massimo = max(sfsReadPos[i][0])
-            mam = max(posizioni[i][0])
-            
-            if int(massimo) + len(sfsRead[i]) > int(posizioni[i][0][0])+  int(posizioni[i][0][1]):
-                print("sono qui")
-                dim = (massimo+len(sfsRead[i]))
+    result = []
+    for i in range(0, len(sfsUnified)):
+        print("Processing new read N:", i)
+        length = 0
+        pInitial = 0
+        if not len(sfsUnified[i])==0:
+            if len(sfsUnified)>1:
+                length = len(sfsUnified[i][0])
             else:
-                print("scherzavo")
-                dim = (int(posizioni[i][0][0])+  int(posizioni[i][0][1])) 
-            '''
-            dim = 10000
-            finale = ["*"] * dim 
+                length(sfsUnified[i])
+            pInitial = int(position[i][0][0])
+            dim = length+pInitial+1       
+            res = ["*"] * dim 
 
-            for x in range(0, len(sfsUnite[i])):   
-                cont = int(posizioni[i][x][0])
-                for c in sfsUnite[i][x]:
-                    finale[cont] = c
+            for x in range(0, len(sfsUnified[i])):   
+                cont = int(position[i][x][0])
+                for c in sfsUnified[i][x]:
+                    res[cont] = c
                     cont+=1
         for j in range(0, len(sfsRead[i])):
             cont = int(sfsReadPos[i][0][j]) - 1        
             for c in sfsRead[i][j]:    
-                finale[cont] = c
+                res[cont] = c
                 cont+=1
         
-        f.append(finale)
+        result.append(res)
 
-    return f
+    return result
       
-def formatting(list):
+def formatting(record):
     support = []
     result = []
-    for l in list:
+    for l in record:
         support = l.split()
         result.append(support)
     result = asteriskRemoval(result)
@@ -244,30 +236,30 @@ def formatting(list):
 
 
 def similarity():
-    file = open("sequenza.txt", 'r')
-    contatore = 0
+    file = open(outputDir + "sequence.txt", 'r')
+    counter = 0
     id = []
     reads = []
     #taking sfs and subdivision for read and saving relative read id
     for i in file:
-        if contatore%2==0:
+        if counter%2==0:
             id.append(i)
         else:
             splitting = i.split("*")
             splittingCleared = list(filter(None, splitting))
             splittingCleared.pop()
             reads.append(splittingCleared)
-        contatore = contatore + 1
+        counter = counter + 1
     file.close()
     #subdivision in cluster for similarity up 80%
     cluster = []
-    appoggio = []
+    support = []
     ratio = []
     ratioTotal = []
     #create first cluster with first sfs
     if len(cluster)==0:
-        appoggio.append(reads[0][0])
-        cluster.append(appoggio)
+        support.append(reads[0][0])
+        cluster.append(support)
     
     for x in range(0, len(reads)):
         for y in range(0, len(reads[x])):
@@ -290,30 +282,31 @@ def similarity():
                     break
                     
                 elif index==len(ratioTotal)-1:
-                    appoggio = []
-                    appoggio.append(reads[x][y])
+                    support = []
+                    support.append(reads[x][y])
                     # da tenere print("ho creato un nuovo cluster")
                     
-                    cluster.append(appoggio)
+                    cluster.append(support)
                     break
             ratioTotal=[]      
-    file = open("cluster.txt", 'w')
+    file = open(outputDir + "cluster.txt", 'w')
     
-    listaApp = []
+    #listaApp = []
+    suppList = []
     import collections
     for r in reads:
         for j in r:
-            listaApp.append(j)
-    weight = collections.Counter(listaApp)
+            suppList.append(j)
+    weight = collections.Counter(suppList)
    
 
 
     for i in range(0, len(cluster)):
-        file.write("Cluster Numero " + str(i+1) + ": ")
+        file.write("Cluster Number " + str(i+1) + ": ")
         for sfs in cluster[i]:
             
             file.write("SFS: " + sfs + " ")
-            file.write("Peso: " + str(weight.get(sfs)) + ", ")
+            file.write("Weight: " + str(weight.get(sfs)) + ", ")
         
         #file.write(", ".join(cluster[i]))
         file.write("\n")
@@ -322,12 +315,12 @@ def similarity():
             
                 
 def index():
-    file = open("cluster.txt", 'r')
-    rappresentanti = []
+    file = open(outputDir + "cluster.txt", 'r')
+    representatives = []
     sfs = []
-    appsfs = []
-    peso = []
-    apppeso = []
+    suppSfs = []
+    weight = []
+    suppWeight = []
     for row in file:
         #clean file and get sfs and weight
         cluster = row.split(" ") 
@@ -337,37 +330,35 @@ def index():
                 cluster.remove(c)
         cluster.remove("\n")
         for index in range(0, len(cluster), 3):
-            appsfs.append(cluster[index])
-            apppeso.append(cluster[index+2].replace(",",""))
+            suppSfs.append(cluster[index])
+            suppWeight.append(cluster[index+2].replace(",",""))
         
-        sfs.append(appsfs)
-        peso.append(apppeso)
-        appsfs = []
-        apppeso = []
+        sfs.append(suppSfs)
+        weight.append(suppWeight)
+        suppSfs = []
+        suppWeight = []
     #I determine the sfs representatives for each cluster
     file.close()
-    for i in range(0, len(peso)):
-        maxi = max(peso[i])
-        rappresentanti.append(sfs[i][peso[i].index(maxi)])
+    for i in range(0, len(weight)):
+        maxi = max(weight[i])
+        representatives.append(sfs[i][weight[i].index(maxi)])
     clusterDeleted = []
     #removing and saving the number of clusters deleted
-    rappresentantiVeri = [] 
+    repsFiltered = [] 
     #for i in range(0, len(rappresentanti)):
-    ##    print(rappresentanti[i])
      
-    for r in rappresentanti:
+    for r in representatives:
         if len(r)<15:
-            clusterDeleted.append(rappresentanti.index(r))
+            clusterDeleted.append(representatives.index(r))
         else:
-            rappresentantiVeri.append(r)
-    #print(len(rappresentantiVeri))
+            repsFiltered.append(r)
 
-    fileFasta = open("rappresentanti.fastq", 'w')
+    fileFasta = open(outputDir + "representatives.fastq", 'w')
     
-    for i in range(0, len(rappresentantiVeri)):
+    for i in range(0, len(repsFiltered)):
         fileFasta.write(">"+ str(i+1))
         fileFasta.write("\n")
-        fileFasta.write(rappresentantiVeri[i])
+        fileFasta.write(repsFiltered[i])
         fileFasta.write("\n")
 
     fileFasta.close()   
@@ -375,15 +366,16 @@ def index():
 #scelta = menu()
 parser = argparse.ArgumentParser(description="Welcome in MONI")
 #se metti il trattino indica che è opzionale, dire a nada
-parser.add_argument("o", type=int, default=1, help="Operazione")
-parser.add_argument("sfsFile", help="insert sfs file path" )
+parser.add_argument("o", type=int, default=1, help="Operation")
+parser.add_argument("sfsFile", help="Insert sfs file path" )
+parser.add_argument("workdir", help="Output Directory" )
 
 
 args = parser.parse_args()
 
 choice = int(args.o)
 pathSfsFile = str(args.sfsFile)
-
+outputDir = str(args.workdir)
 
 ID = 0
 SFS = 1
@@ -397,11 +389,11 @@ file = open(pathSfsFile, 'r')
 for single in file:
     firstList.append(single)
 file.close()
-list = []
-list = formatting(firstList)
+record = []
+record = formatting(firstList)
 
 idList = []
-for i in list:
+for i in record:
     id = i[0]
     if not id in idList:
         idList.append(id)
@@ -413,38 +405,39 @@ for i in list:
 #while(scelta != 11):
 if choice == 1:
     #print all sfs
-    sfs = get(list, SFS)
+    sfs = get(record, SFS)
     printList(sfs)
 if choice == 2:
     #print all positions
-    sfs = get(list, POSITION)
+    sfs = get(record, POSITION)
     printList(sfs)
 if choice == 3:
     #print all lenghts
-    sfs = get(list, LENGTH)
+    sfs = get(record, LENGTH)
     printList(sfs)
 if choice == 4:
     #print all id
-    sfs = get(list, ID)
+    sfs = get(record, ID)
     printList(sfs)
 if choice == 5:
     #print position and length from specif sfs
     sfsUser = input("Inserisci la sfs di cui vuoi posizione e lunghezza: ")
     sfsUser = sfsUser.upper() 
-    position, length = getFromSFS(list, sfsUser)
+    position, length = getFromSFS(record, sfsUser)
     print("la posizione della sfs inserita è: " + position)
     print("La lunghezza della sfs inserita è: " + length)
 if choice == 6:
     a = int(input("Inserisci la posizione minima compresa: "))
     b = int(input("Inserisci la posizione massima compresa: "))
-    sfs = inTheMeaddle(list, a, b)
+    sfs = inTheMeaddle(record, a, b)
     printList(sfs)
 if choice == 7:
     #list of lists, in which for each position have a read, in which have all sequences
-    read = getRead(list)
+    read = getRead(record)
     cont = 0
     read = mergeRead(read)
     str = ""
+    #rename this list
     ls =[]
     
     for r in read:
@@ -454,7 +447,7 @@ if choice == 7:
         ls.append(str)
     
     #return unified string 
-    file = open("sequence.txt", 'w')
+    file = open(outputDir + "sequence.txt", 'w')
     
     for i in range(0, len(read)):
         file.write(idList[i])
@@ -466,16 +459,3 @@ if choice==8:
     similarity()
 if choice==9:
     index()
-if choice==11:
-    file = open('sequenza.txt', 'r')
-    fileString = ""
-    for c in file:
-        for car in c:
-            fileString = fileString + car
-
-    test = fileString.split('*')     
-    print(list(filter(None,test)))
-if choice == 12:
-    getRead(list)
-
-    #scelta = menu()
