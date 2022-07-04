@@ -363,12 +363,25 @@ def index():
 
     fileFasta.close()   
 
+def main():
+    pass
 #scelta = menu()
 parser = argparse.ArgumentParser(description="Welcome in MONI")
-#se metti il trattino indica che è opzionale, dire a nada
+
 parser.add_argument("o", type=int, default=1, help="Operation")
 parser.add_argument("sfsFile", help="Insert sfs file path" )
 parser.add_argument("workdir", help="Output Directory" )
+subparsers = parser.add_subparsers(title='Operation options', description='Number and description of possible operation',help='sub-command help')
+subparsers.add_parser("1", help="Print all sfs")
+subparsers.add_parser("2", help="print all position of sfs")
+subparsers.add_parser("3", help="print all lenghts")
+subparsers.add_parser("4", help="print all id of sfs")
+subparsers.add_parser("5", help="print position and lenght from specific sfs")
+subparsers.add_parser("6", help="print all sfs between two position")
+subparsers.add_parser("7", help="Generate sequence file that is a merging all sfs")
+subparsers.add_parser("8", help="Generate cluster file")
+subparsers.add_parser("9", help="Generate representive file")
+
 
 
 args = parser.parse_args()
@@ -459,3 +472,8 @@ if choice==8:
     similarity()
 if choice==9:
     index()
+
+
+if __name__ == "__main__":
+    main()
+    
