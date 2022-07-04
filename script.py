@@ -1,12 +1,9 @@
-#parser di file .sfs 
-#TO-DO add argument
-#TO-DO rinominare in modo più sensato le variabili
 from difflib import SequenceMatcher
 from importlib.resources import path
 from operator import length_hint
 import rapidfuzz
 import argparse
-#/home/picci/tmp/ParserSFS/solution_batch_0.sfs
+
 
 
 
@@ -274,7 +271,7 @@ def similarity():
                 ratio = []
                 # da tenere  print("nel cluster ", i, " ha ratio ", ratioTotal[i])
             for index in range(0, len(ratioTotal)):
-                if ratioTotal[index] > 79:
+                if ratioTotal[index] > THRESHOLD:
                     # da tenere print("ho aggiunto ", reads[x][y], "in cluster n: ", index)
                     if not reads[x][y] in cluster[index]:
                         cluster[index].append(reads[x][y])
@@ -394,6 +391,8 @@ ID = 0
 SFS = 1
 POSITION = 2
 LENGTH = 3
+THRESHOLD = 79
+
 
 firstList = []
 
