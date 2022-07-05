@@ -15,11 +15,11 @@ def inTheMeaddle(lista, a, b):
             ris.append(lista[cont])
     return ris
 
-def getFromSFS(lista, sfs):
+def getFromSFS(lista, sfs, idUser):
     allSFS = get(lista, SFS)
     for cont in range(0, len(allSFS)):
-        if allSFS[cont] == sfs:
-            return lista[cont][1], lista[cont][2]
+        if allSFS[cont] == sfs and lista[cont][ID]==idUser:
+            return lista[cont][POSITION], lista[cont][LENGTH]
 
 #probabily is to remove 
 def menu():
@@ -40,7 +40,6 @@ def get(lista, x):
     ris = []
     for l in lista:
         ris.append(l[x])
-        print(l[x])
     return ris
 
 def printList(lista):
@@ -311,7 +310,7 @@ def similarity():
     file.close()
             
                 
-def index():
+def rappresentant():
     file = open(outputDir + "cluster.txt", 'r')
     representatives = []
     sfs = []
@@ -434,8 +433,9 @@ if choice == 4:
 if choice == 5:
     #print position and length from specif sfs
     sfsUser = input("Inserisci la sfs di cui vuoi posizione e lunghezza: ")
+    idUser = input("Inserisci l`id della read di cui fa parte l`sfs inserita: ")
     sfsUser = sfsUser.upper() 
-    position, length = getFromSFS(record, sfsUser)
+    position, length = getFromSFS(record, sfsUser, idUser)
     print("la posizione della sfs inserita è: " + position)
     print("La lunghezza della sfs inserita è: " + length)
 if choice == 6:
@@ -446,6 +446,7 @@ if choice == 6:
 if choice == 7:
     #list of lists, in which for each position have a read, in which have all sequences
     read = getRead(record)
+    
     cont = 0
     read = mergeRead(read)
     str = ""
@@ -470,7 +471,7 @@ if choice == 7:
 if choice==8:
     similarity()
 if choice==9:
-    index()
+    rappresentant()
 
 
 if __name__ == "__main__":
