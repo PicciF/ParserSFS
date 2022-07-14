@@ -203,7 +203,7 @@ def mergeRead(record):
                 length(sfsUnified[i])
             pInitial = int(position[i][0][0])
             dim = length+pInitial+1       
-            res = ["*"] * dim 
+            res = ["*"] * 20000 #dim 
 
             for x in range(0, len(sfsUnified[i])):   
                 cont = int(position[i][x][0])
@@ -308,6 +308,8 @@ def similarity():
         file.write("\n")
         
     file.close()
+    print("Total nummber of cluster: " , len(cluster))
+    print("File created!")
             
                 
 def rappresentant():
@@ -357,7 +359,40 @@ def rappresentant():
         fileFasta.write(repsFiltered[i])
         fileFasta.write("\n")
 
-    fileFasta.close()   
+    fileFasta.close()
+    print("Total rappresents: ", len(repsFiltered))
+    print("File created!") 
+def stats(record):
+    record = getRead(record)
+    nSFS = []
+    contNSFS = 0
+
+    onlySFS = []
+    freqSFS = {}
+    cont = 0
+    freqBase = {"A": 0, "C": 0, "G": 0, "T": 0}
+    freqBaseRead = {"A": 0, "C": 0, "G": 0, "T": 0}
+    freqBaseReadList = []
+    for read in record:
+        freqBaseRead = {"A": 0, "C": 0, "G": 0, "T": 0}
+        for sfs in read:
+            onlySFS.append(sfs[SFS])
+            contNSFS+=1
+            
+            for base in sfs[SFS]:
+                freqBaseRead[base] = freqBaseRead[base]+1
+                freqBase[base] = freqBase[base]+1
+            freqBaseReadList.append(freqBaseRead)
+
+        nSFS.append(contNSFS) #qui dentro ho il numero di sfs per ogni read
+        contNSFS = 0
+    
+    for i in onlySFS:
+        freqSFS[i] = onlySFS.count(i) #quid entro ho le occorrenze per ogni sfs
+
+    print(freqBase)
+    print(freqBaseReadList[0])
+    
 
 def main():
     pass
@@ -377,7 +412,7 @@ subparsers.add_parser("6", help="print all sfs between two position")
 subparsers.add_parser("7", help="Generate sequence file that is a merging all sfs")
 subparsers.add_parser("8", help="Generate cluster file")
 subparsers.add_parser("9", help="Generate representive file")
-
+subparsers.add_parser("10", help="Generate stats")
 
 
 args = parser.parse_args()
@@ -467,11 +502,14 @@ if choice == 7:
         file.write("\n")
         file.write("".join(read[i]))
         file.write("\n") 
-    file.close()    
+    file.close()  
+    print("File created!")  
 if choice==8:
     similarity()
 if choice==9:
     rappresentant()
+if choice==10:
+    stats(record)
 
 
 if __name__ == "__main__":
