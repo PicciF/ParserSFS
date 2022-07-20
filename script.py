@@ -1,8 +1,12 @@
+
 from difflib import SequenceMatcher
 from importlib.resources import path
 from operator import length_hint
+from numpy import average
+
 import rapidfuzz
 import argparse
+import matplotlib.pyplot as plt
 
 
 
@@ -84,7 +88,8 @@ def asteriskRemoval(lista):
 
 #join two single sfs
 def union(first, second):
-    match = SequenceMatcher(None, first, second).find_longest_match(0, len(first), 0, len(second))
+    match = (SequenceMatcher(None, first, second)
+    .find_longest_match(0, len(first), 0, len(second)))
     common = first[match.a: match.a + match.size]
     take = len(second) - len(common)
     str = first + second[-take:]
@@ -344,17 +349,18 @@ def rappresentant():
     #removing and saving the number of clusters deleted
     repsFiltered = [] 
     #for i in range(0, len(rappresentanti)):
-     
+    clusterIndex = []
     for r in representatives:
         if len(r)<15:
             clusterDeleted.append(representatives.index(r))
         else:
             repsFiltered.append(r)
+            clusterIndex.append(representatives.index(r))
 
     fileFasta = open(outputDir + "representatives.fastq", 'w')
     
     for i in range(0, len(repsFiltered)):
-        fileFasta.write(">"+ str(i+1))
+        fileFasta.write(">"+ str(clusterIndex[i]))
         fileFasta.write("\n")
         fileFasta.write(repsFiltered[i])
         fileFasta.write("\n")
@@ -382,7 +388,7 @@ def stats(record):
             for base in sfs[SFS]:
                 freqBaseRead[base] = freqBaseRead[base]+1
                 freqBase[base] = freqBase[base]+1
-            freqBaseReadList.append(freqBaseRead)
+            freqBaseReadList.append(freqBaseRead) #occorrenze basi
 
         nSFS.append(contNSFS) #qui dentro ho il numero di sfs per ogni read
         contNSFS = 0
@@ -390,9 +396,156 @@ def stats(record):
     for i in onlySFS:
         freqSFS[i] = onlySFS.count(i) #quid entro ho le occorrenze per ogni sfs
 
-    print(freqBase)
-    print(freqBaseReadList[0])
+    file = open(outputDir + "cluster.txt", 'r')
+    sfs = []
+    ratioCluster = []
+    simCluster = {}
+    for cluster in file:
+        clusterList = cluster.split(" ")
+        
+        if len(clusterList)>12:
+            
+            listSFS = clusterList[4:]
+            nCluster = clusterList[2]
+            for i in range(0, len(listSFS), 4):
+                sfs.append(listSFS[i])
+            for i in range(0, len(sfs)-1):
+                
+                ratioCluster.append(rapidfuzz.fuzz.ratio(sfs[i], sfs[i+1]))
+            
+            simCluster[nCluster] = round(average(ratioCluster), 2) 
+    file.close()
+    def valore_barre(bars):
+        for bar in bars:
+            yval = bar.get_height()
+            
+            plt.text(bar.get_x()+0.05, yval + .5, yval)
+    import numpy    
+   
+    keys = list(simCluster.keys())
+   
+    #output fig simcluster
+    for i in range(0, len(simCluster)):
+        plt.title("Similarità media fra le stringhe dei cluster")
     
+        bar = plt.bar(keys[i][:-1] , round(simCluster[keys[i]]), label=keys[i][:-1])
+        valore_barre(bar)
+    plt.xlabel("Numero del cluster")
+    plt.ylabel("Percentuale di similarità")
+    plt.savefig("Sim cluster")
+
+    plt.close()
+
+    #sim couple cluster
+    file = open(outputDir + "representatives.fastq", 'r')
+    ratioRapp = []
+    dictRes = {}
+    supp = []
+    for row in file:
+        supp.append(row)
+  
+    
+    for i in range(0, len(supp)-4, 4):
+        supp[i] = supp[i].replace("\n", "")
+        supp[i] = supp[i].replace(">", "")
+        supp[i+2] = supp[i+2].replace("\n", "")
+        supp[i+2] = supp[i+2].replace(">", "")
+        key = str(supp[i]) + " " + str(supp[i+2])
+ 
+        dictRes[key] = round(rapidfuzz.fuzz.ratio(supp[i+1], supp[i+3]))
+    dictRes2 ={}
+    cont = 0
+    deletedKey = []
+    for item in dictRes.items():
+        if cont < len(dictRes)/2:
+            dictRes2[item[0]] = item[1]
+            deletedKey.append(item[0])
+            cont+=1
+    for key in deletedKey:
+        dictRes.pop(key)
+  
+    keys = list(dictRes.keys())
+    keys2 = list(dictRes2.keys())
+    #output fig simrepp
+    stri = ""
+    for i in range(0, len(dictRes)):
+        plt.title("Similarità rappresentanti a coppie")
+        stri = keys[i].split()
+        label = stri[0] + "\n" + stri[1]
+    
+        
+        bar = plt.bar(label , round(dictRes[keys[i]]), label=label)
+        valore_barre(bar)
+    plt.xlabel("Coppia cluster", labelpad=0.7)
+    plt.ylabel("Percentuale di similarità")
+    plt.savefig("Sim rep 1")
+
+    plt.close()
+    
+    for i in range(0, len(dictRes2)):
+        plt.title("Similarità rappresentanti a coppie")
+        stri = keys2[i].split()
+        label = stri[0] + "\n" + stri[1]
+    
+        
+        bar = plt.bar(label , round(dictRes2[keys2[i]]), label=label)
+        valore_barre(bar)
+    plt.xlabel("Coppia cluster", labelpad=0.7)
+    plt.ylabel("Percentuale di similarità")
+    plt.savefig("Sim rep 2")
+
+    plt.close()
+   
+    
+    listNsfs = []
+    for i in range(1, max(nSFS)+1):
+        listNsfs.append(nSFS.count(i))
+
+    
+ 
+    # output fig of numero di sfs per read
+  
+    for i in range(0, len(listNsfs)):
+        plt.title("Numero di sfs per read")
+      
+        bar = plt.bar(i+1, listNsfs[i], label=i+1)
+        valore_barre(bar)
+    plt.xlabel("Numero di read")
+    plt.ylabel("Numero di sfs")
+    plt.savefig("Numero di sfs per read")
+
+    plt.close()
+
+    #output fig of occorenze sfs in all read
+    significantVal = {} 
+    for key, value in freqSFS.items():
+        if value > 20:
+            significantVal[key] = value
+
+   
+    for key, value in significantVal.items():
+     
+        plt.title("Occorrenza sfs in tutte le read")
+        bar = plt.bar(key, value, width=0.30)
+        valore_barre(bar)
+        
+    plt.xlabel("Sfs")
+    plt.ylabel("Numero di read in cui la sfs è presente")
+    plt.savefig("Occorrenze sfs")
+    plt.close()
+  
+    #output fig of frequenza basi 
+    for key, value in freqBase.items():
+     
+        plt.title("Occorrenze basi genomiche")
+        bar = plt.bar(key, value, width=0.30)
+        valore_barre(bar)
+        
+    plt.xlabel("Base")
+    plt.ylabel("Numero occorrenze ")
+    plt.savefig("occorrenze basi")
+  
+        
 
 def main():
     pass
